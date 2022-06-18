@@ -1,0 +1,567 @@
+package com.sungard.ktt.business.keywords.investone;
+
+import static com.sungard.ktt.business.keywords.ErrorMessages.ERROR_BROWSER_NOT_INSTANTIATED;
+import static com.sungard.ktt.business.keywords.ErrorMessages.ERROR_PARAMETERS_LIST;
+import static com.sungard.ktt.business.keywords.ErrorMessages.ERROR_USER_NAME_NOT_PASSED;
+import static com.sungard.ktt.view.config.KTTGuiConstants.DEFAULT_PAGE_LOAD_TIME;
+import static com.sungard.ktt.view.config.KTTGuiConstants.DELIMITER;
+import static com.sungard.ktt.view.config.KTTGuiConstants.EMPTY_STRING;
+import static com.sungard.ktt.view.config.KTTGuiConstants.FAIL;
+import static com.sungard.ktt.view.config.KTTGuiConstants.OBJECT_WAIT_VARIABLE;
+import static com.sungard.ktt.view.config.KTTGuiConstants.PAGE_LOAD_WAIT_VARIABLE;
+import static com.sungard.ktt.view.config.KTTGuiConstants.PASS;
+import static com.sungard.ktt.view.config.KTTGuiConstants.PASSWORD_TEXTBOX;
+import static com.sungard.ktt.view.config.KTTGuiConstants.USERNAME_TEXTFIELD;
+
+import org.apache.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+
+import com.sungard.ktt.business.keywords.AbstractKeyword;
+import com.sungard.ktt.business.keywords.Keyword;
+import com.sungard.ktt.business.keywords.KeywordFactoryImpl;
+import com.sungard.ktt.business.keywords.KeywordUtilities;
+import com.sungard.ktt.model.valueobjects.TestcaseExecutionResultVO;
+
+
+
+/**
+ *Logs into the InvestOne web application, 
+ *if the UserName/Password/Role/Operator parameters are provided in the Keyword Driven Test case, 
+ *it will use them; we can also use values specified in the Environment file.	    
+ * 
+ * @author Chitra Daithankar 1/7/2013
+ */
+public class LoginInvestOneHTML5Keyword extends AbstractKeyword {
+	/**
+	 * This is logger object used to log keyword actions into a log file
+	 */
+
+	Logger logger = Logger.getLogger("Thread" + Thread.currentThread().getName());
+	private TestcaseExecutionResultVO testCaseExecutionResult = new TestcaseExecutionResultVO();
+
+	/**
+	 *The user name to enter.
+	 */
+	private String sUserName = null;
+	/**
+	 * The password to enter.
+	 */
+	private String sPassword = null;
+	/**
+	 * Role to enter.
+	 */
+	private String sRole = null;
+	/**
+	 * Operator to be entered.  
+	 */
+	private String sOperator = null;
+	
+	
+	
+	private String sRoleID = null;
+	private String sOperatorID = null;
+	/**
+	 * This is web element object
+	 */
+	private WebElement elementUserNameTxtField,elementPassTxtBox;
+
+	/**
+	 * This method runs after all the validations are successful
+	 * 
+	 * @return <code>true</code> if the login is successful
+	 */
+
+	public String SelectListValue(TestcaseExecutionResultVO testCaseExecutionResult, WebElement listObjectElement,String svalueToSelect)
+	{		
+		logger.info("Inside LoginInvestOneHTML5Keyword.SelectListValue");
+
+		String sListName = "kendoDropDownList";
+		String myId="ID"+(int)(Math.random()*200);
+
+		String orgID=EMPTY_STRING;
+		try
+		{
+			orgID = listObjectElement.getAttribute("id");
+		}
+		catch (Exception e2)
+		{
+			logger.error("Exception occurred: ", e2);
+			orgID=EMPTY_STRING;
+		}
+
+		if(orgID.equalsIgnoreCase(EMPTY_STRING))
+		{
+			try {
+				((JavascriptExecutor)webDriver).executeScript("arguments[0].id=arguments[1]", listObjectElement,myId);
+			} catch (Exception e) {
+				logger.error("Exception occurred: ", e);
+				return "Not able to assign id. SelectWebTableRow";
+			}
+		}
+		else
+		{
+			myId = orgID;
+		}
+
+
+		//The below code is for getting the current selected frame and set document object at the top level
+		//------------------------------------------------------------------------------------------------------
+		String sFrameValue =EMPTY_STRING;
+		try {webDriver.switchTo().defaultContent();} catch (Exception e2) {
+			logger.error("Exception occurred while switching to default content: ", e2);
+		}
+		//------------------------------------------------------------------------------------------------------
+
+		String sfinalStatus="FAIL";
+
+		if(listObjectElement.getAttribute("tagName").equalsIgnoreCase("div"))
+		{
+			String myDivSelector=
+					"f();																								" +
+							"function f()																						" + 
+							"{																									" +
+							KeywordUtilities.getDocumentObject(sFrameValue)													  + 
+							"	var sListLocator = \""+ myId+ "\";																" +			
+							"	var svalueToSelect = \""+svalueToSelect+ "\";													" +
+							"	var listName = \""+sListName+ "\";																" + 
+							"	var Result='FAIL';																				" +
+							"	var got = 0;" +
+							"	try																								" +
+							"	{	" +
+							"		var mObj = fd.getElementById(sListLocator);													" +
+							"		var myul = mObj.getElementsByTagName('ul')[0]; " +
+							"		var mylis = myul.getElementsByTagName('li'); " +
+							"	    for(var dsd=0;dsd<mylis.length;dsd++)" +
+							"		{" +
+							"			if(Trim(mylis[dsd].innerText).indexOf(svalueToSelect)==0)								" +
+							"			{" +
+							"				mylis[dsd].selected = true;" +
+							//"				mObj.click();" +
+							//"				mylis.select(dsd);													
+							//"				mylis[dsd].click();" +
+							"				got=1;																		" +	
+							"				break;																		" +
+							"			}																				" +
+							"		}" +
+							"		if(got==1)																					" +
+							"			return \"PASS\";	   																    " +
+							"		else																						" +
+							"			return \"FAIL Value not found in List\"; 												" +
+							"	}																							" +
+							"	catch(e)																						" +
+							"	{																								" +
+							"		Result='FAIL'+ e.description;																" +
+							"	}																								" +
+							"	return Result;																					" +
+							"}" +
+							"function Trim(s){return s.replace(/^\\s*/,\"\").replace(/\\s*$/, \"\");}";
+
+			sfinalStatus="FAIL";
+			try {
+				sfinalStatus =((JavascriptExecutor)webDriver).executeScript("return "+myDivSelector).toString();
+			} catch (Exception e) {
+				logger.error("Exception occurred in webDriver executeScript(): ", e);
+				sfinalStatus="FAIL";
+			}
+		}
+		else
+		{
+			String mySelector=
+					"f();																								" +
+							"function f()																						" + 
+							"{																									" +
+							KeywordUtilities.getDocumentObject(sFrameValue)													  + 
+							"	var sListLocator = \""+ myId+ "\";																" +
+							"	var svalueToSelect = \""+svalueToSelect+ "\";													" +
+							"	var listName = \""+sListName+ "\";																" + 
+							"	var Result='FAIL';																				" +
+							"	try																								" +
+							"	{																								" +
+							"		var mObj = fd.getElementById(sListLocator);													" +
+							"		var mkobj = $(mObj);																		" +
+							"		var listDataObject = mkobj.data(listName);													" +
+							"		var allItems = listDataObject.items();														" +
+							"		var got = 0;	" +
+							"		for(dsd=0;dsd<allItems.length;dsd++)														" +
+							"		{																							" +
+							"			if(svalueToSelect.length==1)															" +
+							"			{" +
+							"				if(allItems[dsd].innerText.indexOf(svalueToSelect)==0)								" +
+							"					{																				" +
+							"						listDataObject.select(dsd);													" +
+							"						try { listDataObject.trigger('change');  } catch(ee){} 						" +
+							"						got=1;																		" +	
+							"						break;																		" +
+							"					}																				" +
+
+				"			}" +
+				"			else																					" +
+				"			{																						" +
+				"				if(allItems[dsd].innerText == svalueToSelect  )										" +
+				"					{																				" +
+				"						listDataObject.select(dsd);													" +
+
+				"						try { listDataObject.refresh();  } catch(ee){} 						" +
+				"						try { listDataObject.trigger('change');  } catch(ee){} 						" +
+
+				"						" +
+
+				"		got=1;																		" +	
+				"						break;																		" +
+				"					}																				" +
+				"			}																					    " +
+				"		}																							" +
+				"		if(got==1)																					" +
+				"		{																							" +
+				"			return \"PASS\";	   																    " +
+				"		}																							" +
+				"		else																						" +
+				"		{																							" +
+				"			return \"FAIL Value not found in List\"; 												" +
+				"		}																							" +
+				"	}																								" +
+				"	catch(e)																						" +
+				"	{																								" +
+				"		Result='FAIL'+ e.description;																" +
+				"	}																								" +
+				"	return Result;																					" +
+				"}" ;
+
+			sfinalStatus="FAIL";
+
+			try {
+				sfinalStatus =((JavascriptExecutor)webDriver).executeScript("return "+mySelector).toString();
+			} catch (Exception e) {
+				logger.error("Exception occurred in webDriver executeScript(): ", e);
+				sfinalStatus="FAIL";
+			}
+		}
+		try
+		{
+			((JavascriptExecutor)webDriver).executeScript("arguments[0].id=arguments[1]", listObjectElement,orgID);
+		}catch (Exception e1){
+			logger.error("Exception occurred in webDriver executeScript(): ", e1);
+
+		}
+
+
+
+		return sfinalStatus;
+	}
+
+	@Override
+
+	/**
+	 * This method runs after all the validation has been successful
+	 * @return ExecutionResults containing step execution status(pass/fail),
+	 *         exact error message according to failure
+	 */
+
+	public TestcaseExecutionResultVO executeScript(String... listOfParameters) {
+
+		int iWaitForPageLoad  = Integer.parseInt(DEFAULT_PAGE_LOAD_TIME);				
+		if (configurationMap != null && null != configurationMap.get(OBJECT_WAIT_VARIABLE)) 
+		{
+			try {Integer.parseInt(configurationMap.get(OBJECT_WAIT_VARIABLE));
+			} catch (NumberFormatException e) {
+				logger.error ("NumberFormatException occurred: ", e);
+			}
+			try {iWaitForPageLoad = Integer.parseInt(configurationMap.get(PAGE_LOAD_WAIT_VARIABLE));
+			} catch (NumberFormatException e) {
+				logger.error ("NumberFormatException occurred: ", e);
+			}
+		}
+
+		/*------------------------- Enter Username---------------------*/
+
+
+		if (KeywordUtilities.waitForElementPresent(configurationMap,webDriver,USERNAME_TEXTFIELD, userName))
+		{
+			try {
+
+				try {
+
+					elementUserNameTxtField = KeywordUtilities.getWebElement(webDriver,USERNAME_TEXTFIELD);
+				} catch (Exception e) {
+					logger.error("Unable TO Find Element"+ USERNAME_TEXTFIELD + ". Exception: ", e);
+					testCaseExecutionResult.setMessage("Unable TO Find Element"+ USERNAME_TEXTFIELD);
+				}
+				try {
+					elementUserNameTxtField.clear();
+				} catch (Exception e) {
+					logger.error ("Exception occurred: ", e);
+				}			
+
+				webDriver.findElement(By.name("username")).sendKeys(sUserName);
+
+			} catch (Exception e) {
+				logger.error("Error while entering value in UserName field, Exception occurred: ", e);
+				testCaseExecutionResult.setMessage("Error while entering value in UserName field");
+				return testCaseExecutionResult;
+			}
+		}
+		else {
+			logger.error("User Name Text Box Not found");
+			testCaseExecutionResult.setMessage("User Name Text Box Not found");
+			return testCaseExecutionResult;
+		}	
+
+		/*------------------------- Enter password---------------------*/
+		if (KeywordUtilities.waitForElementPresent(configurationMap, webDriver, PASSWORD_TEXTBOX, userName)) {
+			try {
+				elementPassTxtBox = KeywordUtilities.getWebElement(webDriver,PASSWORD_TEXTBOX);
+			} catch (Exception e) {
+				logger.error("Unable To Find Element"+ PASSWORD_TEXTBOX + ". Exception occurred: ", e);
+				testCaseExecutionResult.setMessage("Unable To Find Element"+ PASSWORD_TEXTBOX);
+			}
+			try {
+				elementPassTxtBox.clear();
+			} catch (Exception e) {
+				logger.error("Exception occurred: ", e);
+
+			}
+			webDriver.findElement(By.name("password")).sendKeys(sPassword.split(""));
+		} else {
+			logger.error("Password Text Box Not found");
+			testCaseExecutionResult
+			.setMessage("Password Text Box Not found");
+			return testCaseExecutionResult;
+		}
+
+
+
+		/*------------------------- Select Language---------------------*/
+		/*		try {
+			WebElement elementListLanguage = KeywordUtilities.waitForElementPresentAndEnabledInstance(configurationMap,webDriver, "xpath=//input[@data-role='dropdownlist']","1");
+			String Lang = configurationMap.get(Language1) ;
+			if (EMPTY_STRING.equals(Lang) || Lang==null)
+				Lang="English";
+			String selectLanguage = SelectListValue(testCaseExecutionResult, elementListLanguage, Lang);
+			if(!selectLanguage.contains("PASS"))
+			{
+				testCaseExecutionResult.setMessage(selectLanguage);
+				return testCaseExecutionResult;
+			}
+		} catch (Exception e) {
+			logger.error("Could Not Select Language");
+			testCaseExecutionResult.setMessage("Could Not Select Language");
+			return testCaseExecutionResult;
+		}
+*/
+		/*
+		try {
+			webDriver.findElement(By.cssSelector("span.k-select")).click();
+			webDriver.findElement(By.xpath("//li[text()=\""+Lang+"\"]")).click();
+		} catch (Exception e) {
+			logger.trace(e);
+		}*/
+
+
+		/*------------------------- Click Login---------------------*/
+
+		WebElement loginLink = null;			
+		try {loginLink = webDriver.findElement(By.name("login"));
+		} catch (Exception e) {
+			logger.error("Login link not found. Exception: ", e);
+			testCaseExecutionResult.setMessage("Login link not found");
+			return testCaseExecutionResult;
+		}
+		try {
+			((JavascriptExecutor)webDriver).executeScript("arguments[0].focus();",loginLink);
+			KeywordUtilities.highlight(webDriver,loginLink,userName);
+		} catch (Exception e) {
+			logger.error("Exception occurred: ", e);
+		}
+		//try {loginLink.click();
+		//} catch (Exception e) {}
+		try {
+			try {
+				((JavascriptExecutor)webDriver).executeScript("arguments[0].id=arguments[1]", loginLink,"idLogin");
+				((JavascriptExecutor)webDriver).executeScript("document.getElementById('idLogin').click();");
+			} catch (Exception e) {
+				logger.error("Exception occurred in webDriver executeScript(): ", e);
+				try {
+					((JavascriptExecutor)webDriver).executeScript("arguments[0].click();",loginLink);
+				} catch (Exception e2) {
+					logger.error("Exception occurred in webDriver executeScript(): ", e);
+					logger.error("Could Not Click On Login Link");
+					testCaseExecutionResult.setMessage("Could Not Click On Login Link");
+					return testCaseExecutionResult;
+				}
+			}			
+		} catch (Exception e) {
+			logger.error("Exception occurred: ", e);
+
+		}
+		try {				
+			KeywordUtilities.waitForPageToLoad(webDriver, iWaitForPageLoad,userName);
+		} catch (Exception e) {
+			logger.error("Exception occurred: ", e);
+		}
+
+
+		/*------------------------- Access Denied Check---------------------*/
+
+		try 
+		{	
+			if(webDriver.findElement(By.tagName("body")).getText().contains("Access Denied"))
+			{
+				logger.error("Access Denied");
+				testCaseExecutionResult.setStatus(FAIL);
+				testCaseExecutionResult.setMessage("Access Denied");
+				return testCaseExecutionResult;
+			}
+		}
+		catch (Exception Z)
+		{
+			logger.error("Exception occurred: ", Z);
+		}
+
+		/*------------------------- Select Role---------------------*/	
+		
+		
+		
+		Keyword NavigateItemInvestone = KeywordFactoryImpl.getInstance().get("NavigateItemInvestone", "false"); 
+		//RunMacroWithParam runMacroWithParam = new RunMacroWithParam();
+		String[] params_1 = new String[8]; 
+		params_1[0] = sRoleID;
+		params_1[1] = sRole; 
+		params_1[2] = EMPTY_STRING;
+		params_1[3] = EMPTY_STRING;
+		params_1[4] = EMPTY_STRING;
+		params_1[5] = EMPTY_STRING;
+		params_1[6] = EMPTY_STRING;//sModal_Flag
+		params_1[7] = EMPTY_STRING;//Excel_Kill_Flag
+		TestcaseExecutionResultVO TestcaseExecutionResultRMWP1;
+		try{
+				TestcaseExecutionResultRMWP1 = NavigateItemInvestone.execute(
+						scriptName, this.webDriver, configurationMap,workBookMap,userName,
+						params_1);
+				if (TestcaseExecutionResultRMWP1.getStatus() != PASS) 
+				{							
+					TestcaseExecutionResultRMWP1.setStatus(FAIL);
+					return TestcaseExecutionResultRMWP1;
+				}
+		}
+		catch(Exception e)
+		{
+			logger.error("Exception occurred: ", e);
+			testCaseExecutionResult.setMessage("Error while selecting role");		
+			testCaseExecutionResult.setStatus(FAIL);
+			return testCaseExecutionResult;
+		}
+		
+		
+	/********************** Select Operator*************************/
+		Keyword NavigateItemInvestone_Operator = KeywordFactoryImpl.getInstance().get("NavigateItemInvestone", "false"); 
+		
+		
+		KeywordFactoryImpl.getInstance().get("NavigateItemInvestone", "false"); 
+		//RunMacroWithParam runMacroWithParam = new RunMacroWithParam();
+		String[] params__operator = new String[8]; 
+		params__operator[0] = sOperatorID;
+		params__operator[1] = sOperator; 
+		params__operator[2] = EMPTY_STRING;
+		params__operator[3] = EMPTY_STRING;
+		params__operator[4] = EMPTY_STRING;
+		params__operator[5] = EMPTY_STRING;
+		params__operator[6] = EMPTY_STRING;//sModal_Flag
+		params__operator[7] = EMPTY_STRING;//Excel_Kill_Flag
+		TestcaseExecutionResultVO TestcaseExecutionResultOperator;
+		try{
+			TestcaseExecutionResultOperator = NavigateItemInvestone_Operator.execute(
+						scriptName, this.webDriver, configurationMap,workBookMap,userName,
+						params__operator);
+				if (TestcaseExecutionResultOperator.getStatus() != PASS) 
+				{							
+					TestcaseExecutionResultOperator.setStatus(FAIL);
+					return TestcaseExecutionResultOperator;
+				}
+		}
+		catch(Exception e)
+		{
+			logger.error("Exception occurred: ", e);
+			testCaseExecutionResult.setMessage("Error while selecting operator");		
+			testCaseExecutionResult.setStatus(FAIL);
+			return testCaseExecutionResult;
+		}
+		testCaseExecutionResult.setStatus(PASS);
+		return testCaseExecutionResult;
+
+	}
+
+
+	/**
+	 * This method performs validation of the keyword
+	 * 
+	 * @param listOfParameters
+	 *            : This method requires five parameters in order as below:-
+	 *            1)UserName to login 2)Password to login  4)Role for login 5)Operator for login
+	 * @return ExecutionResults containing step execution status(pass/fail),
+	 *         exact error message according to failure
+	 */
+	@Override
+
+	/**
+	 * This method validates the keyword
+	 * 
+	 * @param listOfParameters
+	 *              contains list of parameters listOfParameters[0]
+	 *              (Mandatory) - sUserName -sPassword-sRole-sOperator
+	 * 
+	 * @return ExecutionResults containing step execution status(pass/fail),
+	 *         exact error message according to failure
+	 */
+
+	public TestcaseExecutionResultVO validateKeyword(String... listOfParameters) {
+		if (listOfParameters != null) {
+			sUserName = listOfParameters[0];
+			sPassword = listOfParameters[1];
+			sRole = listOfParameters[2];
+			sOperator = listOfParameters[3];
+			sRoleID=listOfParameters[4];
+			sOperatorID=listOfParameters[5];
+		} else {
+			logger.error ("Insufficient Parameters!");
+			testCaseExecutionResult.setMessage(ERROR_PARAMETERS_LIST);
+			return testCaseExecutionResult;
+		}
+		testCaseExecutionResult.setTestData(sUserName +DELIMITER+ sRole +DELIMITER+ sOperator);
+
+		if (EMPTY_STRING.equals(sUserName)) {
+			logger.error (ERROR_USER_NAME_NOT_PASSED);
+			testCaseExecutionResult.setMessage(ERROR_USER_NAME_NOT_PASSED);
+			return testCaseExecutionResult;
+		}
+		if (EMPTY_STRING.equals(sRoleID)) {
+			sRoleID = "@id=roleList_masthead_title";
+		}
+		if (EMPTY_STRING.equals(sOperatorID)) {
+			sOperatorID="@id=operatorList_masthead_title";
+			
+		}
+		testCaseExecutionResult.setTestData(sUserName +DELIMITER+ sRole +DELIMITER+ sOperator);
+		testCaseExecutionResult.setValid(true);
+		return testCaseExecutionResult;
+	}
+	@Override
+	/**
+	 * This method validates the object
+	 * @return ExecutionResults containing step execution status(pass/fail),
+	 *         exact error message according to failure
+	 */
+	public TestcaseExecutionResultVO validateObject(String... listOfParameters) {
+
+		if (webDriver == null) {
+			logger.error (ERROR_BROWSER_NOT_INSTANTIATED);
+			testCaseExecutionResult.setMessage(ERROR_BROWSER_NOT_INSTANTIATED);
+			testCaseExecutionResult.setValid(false);
+			return testCaseExecutionResult;
+		}
+		testCaseExecutionResult.setValid(true);
+		return testCaseExecutionResult;
+	}
+}
+
