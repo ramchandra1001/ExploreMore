@@ -1,0 +1,60 @@
+#1) Open the new tab on the browser:
+
+driver.get(https://www.google.com/);
+driver.switchTo().newWindow(WindowType.TAB);
+driver.navigate().to(https://www.crmpro.com/);
+
+#2) Open a new window on the browser:
+
+driver.get(https://www.google.com/);
+driver.switchTo().newWindow(WindowType.WINDOW);
+driver.navigate().to(https://www.crmpro.com/);
+
+#3) Object Location:
+
+WebElement logo1=driver.Findelement(By.xpath(“//div[@id=’divLogo’]//img”));
+System.out.println(“Height:” +logo.getRect().getDimension().getHeight());
+System.out.println(“Width:” +logo.getRect().getDimension().getWidth());
+System.out.println(“X Location: “ +Logo.getRect().getX());
+System.out.println(“Y Location: “ +Logo.getRect().getY());
+
+#4) Relative Locators:
+
+The below example is for the toLeftof() and below() locators:
+WebElement book;
+book = driver.Findelement(RelativeLocators.withTagName(“li”).toLeftOf(By.id(“pid1”)).below(By.id(“pid2”)));
+String id1=book.getAttribute (“id1”);
+The below example is for the toRightOf() and above() locators:
+WebElement book1;
+book1 = driver.Findelement(RelativeLocators.withTagName(“li”).toRightOf(By.id(“pid1”)).above(By.id(“pid2”)));
+String id2=book1.getAttribute (“id2”);
+
+#5) Capture screenshot of specific web element:
+
+WebElement logo=driver.Findelement (By.xpath(“//div[@id=’divLogo’]//img”));
+File file=logo.getScreenshotAs(OutputType.FILE);
+File destFile =new File(“logo.png”);
+FileUtils.copyFile(file,destfile);
+
+
+FluentWait:
+
+// selenium 3 usage
+      FluentWait wait = new FluentWait(driver)
+                            .pollingEvery(20, TimeUnit.MILLISECONDS)
+                            .withTimeout(20, TimeUnit.SECONDS)
+                            .ignoring(NoSuchElementException.class);
+
+//selenium 4 usage
+      FluentWait wait = new FluentWait(driver)
+                            .pollingEvery(Duration.ofMillis(500))
+                            .withTimeout(Duration.ofSeconds(60))
+                            .ignoring(NoSuchElementException.class);
+
+Needs to check:
+1. Relative locators
+2. New tab/window
+3. Element wise screenshot in head-less/normal mode
+4. Check the available methods in PerformBrowserOperations
+
+LaunchBrowser:
