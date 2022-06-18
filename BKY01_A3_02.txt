@@ -1,0 +1,494 @@
+Sub BKY01_A3_02()
+'######################################################################################################################################
+'TEST SCRIPT NAME                                   :BKY01_A3_02
+'OBJECTIVE                                          :Manually place account in All Chapter 13 Bankruptcy Status – A3.
+                                                    'Verify necessary indicators, account messages, codes, fields and transactions are updated appropriately.
+                                                    'Ensure billing statements are no longer generated and credit bureau reporting is updated accordingly.
+'AUTHOR                                             :PRIYANKA
+'DATE                                               :06/12/2018
+'UPDATED BY                                         :NA
+'UPDATED ON                                         :NA
+'ASSUMPTIONS                                        :NA
+'TEST CONDITIONS COVERED                            :NA
+'PRE-CONDITIONS                                     :Online is available
+'####################################################################################################################################
+'MANUAL TEST CASE NAME                              :BKY01 - A3 New Filing.2016
+'####################################################################################################################################
+'MANUAL TESTS                                       :BKY01 - A3 New Filing.2016
+'####################################################################################################################################
+'DEFECTs AFFECTING THIS TEST SCRIPT                 :NONE
+'####################################################################################################################################
+'DEFECTS FOUND WHILE CREATING THE TEST SCRIPTS      :NONE
+'####################################################################################################################################
+'WORK AROUNDS\KNOWN ISSUES                          :NONE
+'####################################################################################################################################
+'Variables that are defined
+TestCaseName = get_datatable_value("TestCaseData", "TestCaseName", 2)
+Report_ID_1 = get_datatable_value("TestCaseData", "Report_ID_1", 2)
+Report_ID_2 = get_datatable_value("TestCaseData", "Report_ID_2", 2)
+BrowseS = get_datatable_value("TestCaseData", "BrowseS", 2)
+optionvse = get_datatable_value("TestCaseData", "optionvse", 2)
+FindVal_LAR175 = get_datatable_value("TestCaseData", "FindVal_LAR175", 2)
+FindVal_LAR144 = get_datatable_value("TestCaseData", "FindVal_LAR144 ", 2)
+F_AccountNumber_1 = get_datatable_value("TestCaseData", "F_AccountNumber_1", 2)
+F_AccountNumber_2 = get_datatable_value("TestCaseData", "F_AccountNumber_2", 2)
+F_AccountNumber_3 = get_datatable_value("TestCaseData", "F_AccountNumber_3", 2)
+F_AccountNumber_4 = get_datatable_value("TestCaseData", "F_AccountNumber_4", 2)
+F_AccountNumber_5 = get_datatable_value("TestCaseData", "F_AccountNumber_5", 2)
+F_New_Cust = get_datatable_value("TestCaseData", "F_New_Cust", 2)
+F_New_Cust1 = get_datatable_value("TestCaseData", "F_New_Cust1", 2)
+Generation = get_datatable_value("TestCaseData", "Generation", 2)
+Select_by = get_datatable_value("TestCaseData", "Select_by", 2)
+Region = get_datatable_value("TestCaseData", "Region", 2)
+Control = get_datatable_value("TestCaseData", "Control", 2)
+Verification_Message_1 = get_datatable_value("TestCaseData", "Verification_Message_1", 2)
+Verification_Message_2 = get_datatable_value("TestCaseData", "Verification_Message_2", 2)
+Verification_Message_3 = get_datatable_value("TestCaseData", "Verification_Message_3", 2)
+FATAL_ERROR_MSG = get_datatable_value("TestCaseData", "FATAL_ERROR_MSG", 2)
+AccountNumber_1 = get_datatable_value("TestCaseData", "AccountNumber_1", 2)
+AccountNumber_2 = get_datatable_value("TestCaseData", "AccountNumber_2", 2)
+AccountNumber_3 = get_datatable_value("TestCaseData", "AccountNumber_3", 2)
+AccountNumber_4 = get_datatable_value("TestCaseData", "AccountNumber_4", 2)
+AccountNumber_5 = get_datatable_value("TestCaseData", "AccountNumber_5", 2)
+New_Cust = get_datatable_value("TestCaseData", "New_Cust", 2)
+New_Cust1 = get_datatable_value("TestCaseData", "New_Cust1", 2)
+Tran_TINQ = get_datatable_value("TestCaseData", "Tran_TINQ", 2)
+App_LA = get_datatable_value("TestCaseData", "App_LA", 2)
+LA_CRTL = get_datatable_value("TestCaseData", "LA_CRTL", 2)
+VALUE_S = get_datatable_value("TestCaseData", "VALUE_S", 2)
+Tran_LAN3 = get_datatable_value("TestCaseData", "Tran_LAN3", 2)
+Tran_LAN7 = get_datatable_value("TestCaseData", "Tran_LAN7", 2)
+Tran_LAQ3 = get_datatable_value("TestCaseData", "Tran_LAQ3", 2)
+Tran_LAE1 = get_datatable_value("TestCaseData", "Tran_LAE1", 2)
+Tran_LAN4 = get_datatable_value("TestCaseData", "Tran_LAN4", 2)
+Value_N = get_datatable_value("TestCaseData", "Value_N", 2)
+Value_Y = get_datatable_value("TestCaseData", "Value_Y", 2)
+Value_D = get_datatable_value("TestCaseData", "Value_D", 2)
+LEGAL_A3 = get_datatable_value("TestCaseData", "LEGAL_A3", 2)
+'_____________________________________________________________________________________________________________________________________________________________
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LOGIN TO ONLINE REGION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step A", "log on online region "
+    
+    If login_cics_tsso_region = False Then
+        Exit Sub
+    End If
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> VERIFY ONLINE REGION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step 0.1", "Navigate to TINQ screen and Verify Application ID"
+    
+    navigate_to_screen Tran_TINQ
+    ApplID = get_host_value(4, 47, 4, 54)
+    Create_Testresult_in_word_document "Step 0.1", "  Navigate to TINQ screen and Verify APPLID: " & ApplID, "PASS"
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CHANGE CONTROL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    change_controls_in_TSCR App_LA, LA_CRTL
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> RSI ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    'Navigate to LAN3 screen to get ORIG BANKRUPT DT
+    
+    navigate_to_screen Tran_LAN3
+    set_edit_value "ACCT", AccountNumber_1
+    send_host_key "<ENTER>"
+    ORIG_BANKRUPT_DT = get_host_value(7, 61, 7, 68)
+    
+    '[1]  Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y AND CR BUR DLQ DT = ORIG BANKRUPT DT.
+    
+    report_step "Step 1", "Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y and CR BUR DLQ DT = ORIG BANKRUPT DT."
+    
+    navigate_to_screen Tran_LAN7
+    set_edit_value "ACCT", AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_N, 7, 76
+    check_string_in_specified_location Value_Y, 7, 47
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 9, 47
+    Create_Testresult_in_word_document "Step 1", "Navigate to LAN7 Screen and verify the credit bureau fields are updated correctly, STOP CR BUR IND = " & Value_N & ", RPT TO CR BUR = " & Value_Y & " and CR BUR DLQ DT = " & ORIG_BANKRUPT_DT & " for the Retail RSI account = " & AccountNumber_1 & ".", "PASS"
+    
+    '[2]  Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D.
+    
+    report_step "Step 2", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D."
+    
+    navigate_to_screen Tran_LAQ3
+    set_edit_value "ACCT", AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 20, 17
+    Create_Testresult_in_word_document "Step 2", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY reflects a D in the first position, CREDIT HISTORY = " & Value_D & " for the Retail RSI account = " & AccountNumber_1 & ".", "PASS"
+    
+    '[3]  Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately.
+    
+    report_step "Step 3", " Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately."
+    
+    navigate_to_screen Tran_LAE1
+    set_edit_value "ACCT", AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 7, 58
+    check_string_in_specified_location Value_Y, 10, 22
+    check_string_in_specified_location LEGAL_A3, 12, 22
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 12, 27
+    Create_Testresult_in_word_document "Step 3", "Navigate to LAE1 Screen and Verify the CB CUST INFO CD = " & Value_D & ", REPORT TO CR BUREAU = " & Value_Y & ", LEGAL ST = " & LEGAL_A3 & " and BKRUPT DT = " & ORIG_BANKRUPT_DT & " has been populated successfully for the Retail RSI account = " & AccountNumber_1 & ".", "PASS"
+    
+    '[4]  Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D.
+    
+    report_step "Step 4", "Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D."
+    
+    navigate_to_screen Tran_LAN4
+    set_edit_value "ACCT", AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 14, 78
+    Create_Testresult_in_word_document "Step 4", "Navigate to LAN4 Screen and Verify the LST RPTD CUST INFO CD = " & Value_D & " for the Retail RSI account = " & AccountNumber_1 & ".", "PASS"
+    
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> RZI ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    'Navigate to LAN3 screen to get ORIG BANKRUPT DT
+    
+    navigate_to_screen Tran_LAN3
+    set_edit_value "ACCT", AccountNumber_2
+    send_host_key "<ENTER>"
+    ORIG_BANKRUPT_DT = get_host_value(7, 61, 7, 68)
+    '[5]  Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y AND CR BUR DLQ DT = ORIG BANKRUPT DT.
+    
+    report_step "Step 5", "Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y and CR BUR DLQ DT = ORIG BANKRUPT DT."
+    
+    navigate_to_screen Tran_LAN7
+    set_edit_value "ACCT", AccountNumber_2
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_N, 7, 76
+    check_string_in_specified_location Value_Y, 7, 47
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 9, 47
+    Create_Testresult_in_word_document "Step 5", "Navigate to LAN7 Screen and verify the credit bureau fields are updated correctly, STOP CR BUR IND = " & Value_N & ", RPT TO CR BUR = " & Value_Y & " and CR BUR DLQ DT = " & ORIG_BANKRUPT_DT & " for the Retail RZI account = " & AccountNumber_2 & ".", "PASS"
+    
+    '[6]  Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D.
+    
+    report_step "Step 6", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D."
+    
+    navigate_to_screen Tran_LAQ3
+    set_edit_value "ACCT", AccountNumber_2
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 20, 17
+    Create_Testresult_in_word_document "Step 6", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY reflects a D in the first position, CREDIT HISTORY = " & Value_D & " for the Retail RZI account = " & AccountNumber_2 & ".", "PASS"
+    
+    '[7]  Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately.
+    
+    report_step "Step 7", " Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately."
+    
+    navigate_to_screen Tran_LAE1
+    set_edit_value "ACCT", AccountNumber_2
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 7, 58
+    check_string_in_specified_location Value_Y, 10, 22
+    check_string_in_specified_location LEGAL_A3, 12, 22
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 12, 27
+    Create_Testresult_in_word_document "Step 7", "Navigate to LAE1 Screen and Verify the CB CUST INFO CD = " & Value_D & ", REPORT TO CR BUREAU = " & Value_Y & ", LEGAL ST = " & LEGAL_A3 & " and BKRUPT DT = " & ORIG_BANKRUPT_DT & " has been populated successfully for the Retail RZI account = " & AccountNumber_2 & ".", "PASS"
+    
+    '[8]  Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D.
+    
+    report_step "Step 8", "Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D."
+    
+    navigate_to_screen Tran_LAN4
+    set_edit_value "ACCT", AccountNumber_2
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 14, 78
+    Create_Testresult_in_word_document "Step 8", "Navigate to LAN4 Screen and Verify the LST RPTD CUST INFO CD = " & Value_D & " for the Retail RZI account = " & AccountNumber_2 & ".", "PASS"
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LOI ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    'Navigate to LAN3 screen to get ORIG BANKRUPT DT
+    
+    navigate_to_screen Tran_LAN3
+    set_edit_value "ACCT", AccountNumber_3
+    send_host_key "<ENTER>"
+    ORIG_BANKRUPT_DT = get_host_value(7, 61, 7, 68)
+    
+    '[9]  Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y AND CR BUR DLQ DT = ORIG BANKRUPT DT
+    
+    report_step "Step 9", "Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y and CR BUR DLQ DT = ORIG BANKRUPT DT."
+    
+    navigate_to_screen Tran_LAN7
+    set_edit_value "ACCT", AccountNumber_3
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_N, 7, 76
+    check_string_in_specified_location Value_Y, 7, 47
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 9, 47
+    Create_Testresult_in_word_document "Step 9", "Navigate to LAN7 Screen and verify the credit bureau fields are updated correctly, STOP CR BUR IND = " & Value_N & ", RPT TO CR BUR = " & Value_Y & " and CR BUR DLQ DT = " & ORIG_BANKRUPT_DT & " for the Lease LOI account = " & AccountNumber_3 & ".", "PASS"
+    
+    '[10]  Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D.
+    
+    report_step "Step 10", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D."
+    
+    navigate_to_screen Tran_LAQ3
+    set_edit_value "ACCT", AccountNumber_3
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 20, 17
+    Create_Testresult_in_word_document "Step 10", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY reflects a D in the first position, CREDIT HISTORY = " & Value_D & " for the Lease LOI account = " & AccountNumber_3 & ".", "PASS"
+    
+    '[11]  Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately.
+    
+    report_step "Step 11", " Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately."
+    
+    navigate_to_screen Tran_LAE1
+    set_edit_value "ACCT", AccountNumber_3
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 7, 58
+    check_string_in_specified_location Value_Y, 10, 22
+    check_string_in_specified_location LEGAL_A3, 12, 22
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 12, 27
+    Create_Testresult_in_word_document "Step 11", "Navigate to LAE1 Screen and Verify the CB CUST INFO CD = " & Value_D & ", REPORT TO CR BUREAU = " & Value_Y & ", LEGAL ST = " & LEGAL_A3 & " and BKRUPT DT = " & ORIG_BANKRUPT_DT & " has been populated successfully for the Lease LOI account = " & AccountNumber_3 & ".", "PASS"
+    
+    '[12]  Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D.
+    
+    report_step "Step 12", "Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D."
+    
+    navigate_to_screen Tran_LAN4
+    set_edit_value "ACCT", AccountNumber_3
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 14, 78
+    Create_Testresult_in_word_document "Step 12", "Navigate to LAN4 Screen and Verify the LST RPTD CUST INFO CD = " & Value_D & " for the Lease LOI account = " & AccountNumber_3 & ".", "PASS"
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LCIA ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    'Navigate to LAN3 screen to get ORIG BANKRUPT DT
+    
+    navigate_to_screen Tran_LAN3
+    set_edit_value "ACCT", AccountNumber_4
+    send_host_key "<ENTER>"
+    ORIG_BANKRUPT_DT = get_host_value(7, 61, 7, 68)
+    
+    '[13]  Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y AND CR BUR DLQ DT = ORIG BANKRUPT DT.
+    
+    report_step "Step 13", "Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y and CR BUR DLQ DT = ORIG BANKRUPT DT."
+    
+    navigate_to_screen Tran_LAN7
+    set_edit_value "ACCT", AccountNumber_4
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_N, 7, 76
+    check_string_in_specified_location Value_Y, 7, 47
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 9, 47
+    Create_Testresult_in_word_document "Step 13", "Navigate to LAN7 Screen and verify the credit bureau fields are updated correctly, STOP CR BUR IND = " & Value_N & ", RPT TO CR BUR = " & Value_Y & " and CR BUR DLQ DT = " & ORIG_BANKRUPT_DT & " for the Lease LCIA account = " & AccountNumber_4 & ".", "PASS"
+    
+    '[14]  Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D.
+    
+    report_step "Step 14", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D."
+    
+    navigate_to_screen Tran_LAQ3
+    set_edit_value "ACCT", AccountNumber_4
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 20, 17
+    Create_Testresult_in_word_document "Step 14", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY reflects a D in the first position, CREDIT HISTORY = " & Value_D & " for the Lease LCIA account = " & AccountNumber_4 & ".", "PASS"
+    
+    '[15]  Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately.
+    
+    report_step "Step 15", " Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately."
+    
+    navigate_to_screen Tran_LAE1
+    set_edit_value "ACCT", AccountNumber_4
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 7, 58
+    check_string_in_specified_location Value_Y, 10, 22
+    check_string_in_specified_location LEGAL_A3, 12, 22
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 12, 27
+    Create_Testresult_in_word_document "Step 15", "Navigate to LAE1 Screen and Verify the CB CUST INFO CD = " & Value_D & ", REPORT TO CR BUREAU = " & Value_Y & ", LEGAL ST = " & LEGAL_A3 & " and BKRUPT DT = " & ORIG_BANKRUPT_DT & " has been populated successfully for the Lease LCIA account = " & AccountNumber_4 & ".", "PASS"
+    
+    '[16]  Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D.
+    
+    report_step "Step 16", "Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D."
+    
+    navigate_to_screen Tran_LAN4
+    set_edit_value "ACCT", AccountNumber_4
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 14, 78
+    Create_Testresult_in_word_document "Step 16", "Navigate to LAN4 Screen and Verify the LST RPTD CUST INFO CD = " & Value_D & " for the Lease LCIA account = " & AccountNumber_4 & ".", "PASS"
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LCIR ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    'Navigate to LAN3 screen to get ORIG BANKRUPT DT
+    
+    navigate_to_screen Tran_LAN3
+    set_edit_value "ACCT", AccountNumber_5
+    send_host_key "<ENTER>"
+    ORIG_BANKRUPT_DT = get_host_value(7, 61, 7, 68)
+    
+    '[17]  Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y AND CR BUR DLQ DT = ORIG BANKRUPT DT.
+    
+    report_step "Step 17", "Navigate to LAN7 Screen and verify the STOP CR BUR IND = N, RPT TO CR BUR = Y and CR BUR DLQ DT = ORIG BANKRUPT DT."
+    
+    navigate_to_screen Tran_LAN7
+    set_edit_value "ACCT", AccountNumber_5
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_N, 7, 76
+    check_string_in_specified_location Value_Y, 7, 47
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 9, 47
+    Create_Testresult_in_word_document "Step 17", "Navigate to LAN7 Screen and verify the credit bureau fields are updated correctly, STOP CR BUR IND = " & Value_N & ", RPT TO CR BUR = " & Value_Y & " and CR BUR DLQ DT = " & ORIG_BANKRUPT_DT & " for the Lease LCIR account = " & AccountNumber_5 & ".", "PASS"
+    
+    '[18]  Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D.
+    
+    report_step "Step 18", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY = D."
+    
+    navigate_to_screen Tran_LAQ3
+    set_edit_value "ACCT", AccountNumber_5
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 20, 17
+    Create_Testresult_in_word_document "Step 18", "Navigate to LAQ3 Screen and verify the CREDIT HISTORY reflects a D in the first position, CREDIT HISTORY = " & Value_D & " for the Lease LCIR account = " & AccountNumber_5 & ".", "PASS"
+    
+    '[19]  Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately.
+    
+    report_step "Step 19", " Navigate to LAE1 Screen and Verify the LEGAL ST/BKRUPT DT, CB CUST INFO CD and REPORT TO CR BUREAU fields have been populated appropriately."
+    
+    navigate_to_screen Tran_LAE1
+    set_edit_value "ACCT", AccountNumber_5
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 7, 58
+    check_string_in_specified_location Value_Y, 10, 22
+    check_string_in_specified_location LEGAL_A3, 12, 22
+    check_string_in_specified_location ORIG_BANKRUPT_DT, 12, 27
+    Create_Testresult_in_word_document "Step 19", "Navigate to LAE1 Screen and Verify the CB CUST INFO CD = " & Value_D & ", REPORT TO CR BUREAU = " & Value_Y & ", LEGAL ST = " & LEGAL_A3 & " and BKRUPT DT = " & ORIG_BANKRUPT_DT & " has been populated successfully for the Lease LCIR account = " & AccountNumber_5 & ".", "PASS"
+    
+    '[20]  Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D.
+    
+    report_step "Step 20", "Navigate to LAN4 Screen and verify the LST RPTD CUST INFO CD = D."
+    
+    navigate_to_screen Tran_LAN4
+    set_edit_value "ACCT", AccountNumber_5
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Value_D, 14, 78
+    Create_Testresult_in_word_document "Step 20", "Navigate to LAN4 Screen and Verify the LST RPTD CUST INFO CD = " & Value_D & " for the Lease LCIR account = " & AccountNumber_5 & ".", "PASS"
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LOGOFF TO ONLINE REGION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step B", "log off online region "
+    
+    Call logoff_cics_tsso_region
+    send_host_key "<ENTER>"
+    'Call close_passport_session
+'_____________________________________________________________________________________________________________________________________________________________
+    
+    '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LOGIN TO BATCH REGION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step C", "log on batch region "
+    
+    If login_batch_region = False Then
+        Exit Sub
+    End If
+    
+    '>>>>>>>>>> GO TO SARFTEST TO CHECK REPORT <<<<<<<<<<<<<<<<<<<<<<
+    
+    set_edit_value "Option ===>", optionvse
+    send_host_key "<ENTER>"
+    set_edit_value "Generation ===>", Generation
+    set_edit_value "Select By     ===>", Select_by
+    set_edit_value "Sysout ID     ===>", Region & Control & Report_ID_1
+    Create_Testresult_in_word_document "Step 21", "Verify that the Region Name = " & Region & ", Control = " & Control & " and first Report Name = " & Report_ID_1 & " has entered successfully", "PASS"
+    send_host_key "<ENTER>"
+    set_value_in_location 6, 2, BrowseS
+    Create_Testresult_in_word_document "Step 22", "Verify the LAR175 Report (Billing Register Report) should be displayed", "PASS"
+    send_host_key "<ENTER>"
+
+    '>>>>>>>>>> LAR175 report ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step 23", "LAR175 report ACCOUNT VERIFICATION"
+    
+    set_edit_value "Command ===>", FindVal_LAR175
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 113
+    
+    set_edit_value "Command ===>", F_AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_2, 1, 110
+    Create_Testresult_in_word_document "Step 23", "Verify the RSI Account = " & AccountNumber_1 & " not found in LAR175 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_2
+    send_host_key "<ENTER>"
+    send_host_key "<PF5>"
+    check_string_in_specified_location Verification_Message_2, 1, 110
+    Create_Testresult_in_word_document "Step 24", "Verify the RZI Account = " & AccountNumber_2 & " not found in LAR175 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_3
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_2, 1, 110
+    Create_Testresult_in_word_document "Step 25", "Verify the LOI Account = " & AccountNumber_3 & " not found in LAR175 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_4
+    send_host_key "<ENTER>"
+    send_host_key "<PF5>"
+    check_string_in_specified_location Verification_Message_2, 1, 110
+    Create_Testresult_in_word_document "Step 26", "Verify the LCIA Account = " & AccountNumber_4 & " not found in LAR175 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_5
+    send_host_key "<ENTER>"
+    send_host_key "<PF5>"
+    check_string_in_specified_location Verification_Message_2, 1, 110
+    Create_Testresult_in_word_document "Step 27", "Verify the LCIR Account = " & AccountNumber_5 & " not found in LAR175 Report.", "PASS"
+    
+    send_host_key "<PF3>"
+    send_host_key "<PF3>"
+    
+    '>>>>>>>>>> GO TO SARFTEST TO CHECK REPORT <<<<<<<<<<<<<<<<<<<<<<
+    
+    set_edit_value "Sysout ID     ===>", Region & Control & Report_ID_2
+    Create_Testresult_in_word_document "Step 28", "Verify that the Region Name = " & Region & ", Control = " & Control & " and second Report " & Report_ID_2 & " has entered successfully", "PASS"
+    send_host_key "<ENTER>"
+    set_value_in_location 11, 2, BrowseS
+    Create_Testresult_in_word_document "Step 29", "Verify the LAR144 Report (Credit Bureau Report) should be displayed", "PASS"
+    send_host_key "<ENTER>"
+    
+    '>>>>>>>>>> LAR144 report ACCOUNT VERIFICATION <<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step 30", "LAR144 report ACCOUNT VERIFICATION"
+    
+    set_edit_value "Command ===>", FindVal_LAR144
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 113
+    
+    set_edit_value "Command ===>", F_AccountNumber_1
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 110
+    check_string_in_specified_location AccountNumber_1, 4, 7
+    Create_Testresult_in_word_document "Step 30", "Verify the RSI Account = " & AccountNumber_1 & " found in LAR144 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_2
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 110
+    check_string_in_specified_location AccountNumber_2, 9, 7
+    Create_Testresult_in_word_document "Step 31", "Verify the RZI Account = " & AccountNumber_2 & " found in LAR144 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_3
+    send_host_key "<ENTER>"
+    send_host_key "<PF5>"
+    check_string_in_specified_location Verification_Message_3, 1, 110
+    check_string_in_specified_location AccountNumber_3, 4, 7
+    Create_Testresult_in_word_document "Step 32", "Verify the LOI Account = " & AccountNumber_3 & " found in LAR144 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_4
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 110
+    check_string_in_specified_location AccountNumber_4, 9, 7
+    Create_Testresult_in_word_document "Step 33", "Verify the LCIA Account = " & AccountNumber_4 & " found in LAR144 Report.", "PASS"
+    
+    set_edit_value "Command ===>", F_AccountNumber_5
+    send_host_key "<ENTER>"
+    check_string_in_specified_location Verification_Message_3, 1, 110
+    check_string_in_specified_location AccountNumber_5, 14, 7
+    Create_Testresult_in_word_document "Step 34", "Verify the LCIR Account = " & AccountNumber_5 & " found in LAR144 Report.", "PASS"
+    
+    send_host_key "<PF3>"
+    send_host_key "<PF3>"
+    
+    '>>>>>>>>>> LOGOFF TO BATCH REGION <<<<<<<<<<<<<<<<<<<<<<
+    
+    report_step "Step D", "log off batch region "
+    
+    set_edit_value "Command ===>", "=x"
+    send_host_key "<ENTER>"
+    send_host_key "<PF3>"
+    send_host_key "<PF3>"
+    send_host_key "<PF3>"
+    set_edit_value "Process Option . . . .", "3"
+    send_host_key "<ENTER>"
+    set_value_in_location 3, 1, "LOGOFF"
+    send_host_key "<ENTER>"
+    send_host_key "<ENTER>"
+    
+End Sub
